@@ -1,32 +1,23 @@
 import React, { Component } from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
+import Axios from "axios";
 import "./App.css";
 import Header from "./components/layout/Header";
 import Todos from "./components/todos/Todos";
 import AddTodo from "./components/todos/AddTodo";
 import About from "./components/pages/About";
-import uuid from "uuid";
+//import uuid from "uuid"; -> Use for hardcode data
 
 class App extends Component {
   state = {
-    todos: [
-      {
-        id: uuid.v4(),
-        title: "Take out the trash",
-        isCompleted: false
-      },
-      {
-        id: uuid.v4(),
-        title: "Get good at ReactJS",
-        isCompleted: false
-      },
-      {
-        id: uuid.v4(),
-        title: "Dark souls III",
-        isCompleted: false
-      }
-    ]
+    todos: []
   };
+
+  componentDidMount() {
+    Axios.get("https://jsonplaceholder.typicode.com/todos?_limit=10").then(
+      res => this.setState({ todos: res.data })
+    );
+  }
 
   //Creating custom method like this with the arrow function binds the 'this' to the prop
   //toggles isComplete between true and false
@@ -43,20 +34,29 @@ class App extends Component {
 
   //Delete Todo
   delTodoItem = id => {
-    this.setState({
-      todos: [...this.state.todos.filter(todo => todo.id !== id)]
-    });
+    Axios.delete(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res =>
+      this.setState({
+        todos: [...this.state.todos.filter(todo => todo.id !== id)]
+      })
+    );
+
+    // this.setState({
+    //   todos: [...this.state.todos.filter(todo => todo.id !== id)]
+    // }); -> For hardcoded state.
   };
 
   //Add Todo
   addTodo = title => {
-    const newTodo = {
-      id: uuid.v4(),
-      title, //Same thing -> title: title,
+    // const newTodo = {
+    //   id: uuid.v4(),
+    //   title, //Same thing -> title: title,
+    //   isCompleted: false
+    // }; -> for hard coded states.
+    Axios.post("https://jsonplaceholder.typicode.com/todos", {
+      title,
       isCompleted: false
-    };
-
-    this.setState({ todos: [...this.state.todos, newTodo] });
+    }).then(res => this.setState({ todos: [...this.state.todos, res.data] }));
+    // this.setState({ todos: [...this.state.todos, newTodo] }); -> For hardcoded states.
   };
   render() {
     return (
